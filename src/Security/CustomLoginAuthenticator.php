@@ -25,6 +25,7 @@ class CustomLoginAuthenticator extends AbstractLoginFormAuthenticator
 
     private UrlGeneratorInterface $urlGenerator;
     private $logger;
+
     public function __construct(UrlGeneratorInterface $urlGenerator, LoggerInterface $logger)
     {
         $this->urlGenerator = $urlGenerator;
@@ -33,22 +34,27 @@ class CustomLoginAuthenticator extends AbstractLoginFormAuthenticator
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
-        return new Response('invalid credentials', status: 401);
+        return new Response('invalid credentials', status: 200);
     }
 
     public function authenticate(Request $request): Passport
     {
 
         $authenticationData = json_decode($request->getContent(), true);
-        $email = $authenticationData['email'];
-        $password = $authenticationData['password'];
-        $csrf_token = $authenticationData['csrf_token'];
 
-         return  new Passport(
+        $email = $authenticationData['email'];
+
+        $password = $authenticationData['password'];
+
+        /*
+        $email = $request->request->get('email');
+        $password = $request->request->get('password');
+        */
+
+        return new Passport(
             new UserBadge($email),
             new PasswordCredentials($password),
             [
-
             ],
         );
 
@@ -68,7 +74,7 @@ class CustomLoginAuthenticator extends AbstractLoginFormAuthenticator
     public function supports(Request $request): bool
     {
 
-        return  $request->getPathInfo() === '/login'&&  $request->isMethod('POST');
+        return $request->getPathInfo() === '/login' && $request->isMethod('POST');
     }
 
 
